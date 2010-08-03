@@ -19,7 +19,7 @@ public class defragmenterThread extends Thread {
 	int totalPackets, totalDataPackets, totalCorruptDataPackets, totalCorrectDataPackets;
 	int lastPacket, total_bytes;
 	int totalWirelessPackets, totalCorrectedWirelessPackets, totalCorruptWirelessPackets;
-	int totalFrames, totalCorruptFrames;
+	int totalFrames, totalCorruptFrames, totalCorrectFrames;
 	Timestamp timestamp;
 	boolean wirelessFEC, ipFEC;
 	m3Generator feedbackGenerator;
@@ -34,7 +34,7 @@ public class defragmenterThread extends Thread {
 	byte[] earlyPacket;
 	// counter representing where in the target packet the next byte will go
 	int targetCounter = 0;
-	BufferedWriter outputBuff, perStats, goodputStats, ferStats, fecStats, fecStats2;
+	BufferedWriter outputBuff, perStats, ipGpStats, ferStats, wirelessGpStats, fecStats, fecStats2;
 	byte[] currentRadioPacket;
 	int oldPacketCounter, prevFeedbackState, totalbytes;
 	FileWriter receiver_IP_file, receiver_wireless_file;
@@ -87,6 +87,7 @@ public class defragmenterThread extends Thread {
 			totalCorrectDataPackets = 0;
 			totalFrames = 0;
 			totalCorruptFrames = 0;
+			totalCorrectFrames = 0;
 			totalWirelessPackets = 1;
 			totalCorrectedWirelessPackets = 1;
 			lastPacket = 1;
@@ -111,15 +112,20 @@ public class defragmenterThread extends Thread {
 			perStats.write("# format: [timestamp]~~~[packet error rate]~~~[total corrupt packets]~~~[total packets]\n\n");
 			perStats.flush();
 			
-			goodputStats = new BufferedWriter(new FileWriter("E2E_GOODPUT_STATISTICS"));
-			goodputStats.write("# Goodput Statistics\n");
-			goodputStats.write("# format: [timestamp]~~~[goodput]~~~[total correct packets]~~~[total packets]\n\n");
-			goodputStats.flush();
+			ipGpStats = new BufferedWriter(new FileWriter("E2E_IP_GP_STATISTICS"));
+			ipGpStats.write("# IP-Level Goodput Statistics\n");
+			ipGpStats.write("# format: [timestamp]~~~[goodput]~~~[total correct packets]~~~[total packets]\n\n");
+			ipGpStats.flush();
 			
 			ferStats = new BufferedWriter(new FileWriter("E2E_FER_STATISTICS"));
 			ferStats.write("# Frame Error Rate Statistics\n");
 			ferStats.write("# format: [timestamp]~~~[frame error rate]~~~[total corrupt frames]~~~[total frames]\n\n");
 			ferStats.flush();
+			
+			wirelessGpStats = new BufferedWriter(new FileWriter("E2E_WIRELESS_GP_STATISTICS"));
+			wirelessGpStats.write("# Wireless-Level Goodput Statistics\n");
+			wirelessGpStats.write("# format: [timestamp]~~~[goodput]~~~[total correct frames]~~~[total frames]\n\n");
+			wirelessGpStats.flush();
 			
 			fecStats = new BufferedWriter(new FileWriter("fecStats"));
 			fecStats2 = new BufferedWriter(new FileWriter("fecStats2"));
@@ -779,9 +785,9 @@ public class defragmenterThread extends Thread {
 				//perStats.write("\t" + timestamp + "\t\t" + per + "\t" + totalCorruptDataPackets + "\t" + totalDataPackets + "\n");
 				//perStats.flush();
 			}
-			float goodput = (float) (totalCorrectDataPackets / totalDataPackets);
-			goodputStats.write(timestamp + "~~~" + goodput + "~~~" + totalCorrectDataPackets + "~~~" + totalDataPackets + "\n");
-			goodputStats.flush();
+			float goodput = (float) totalCorrectDataPackets / totalDataPackets;
+			ipGpStats.write(timestamp + "~~~" + goodput + "~~~" + totalCorrectDataPackets + "~~~" + totalDataPackets + "\n");
+			ipGpStats.flush();
 
 			float per = (float) totalCorruptDataPackets / totalDataPackets;
 			perStats.write(timestamp + "~~~" + per + "~~~" + totalCorruptDataPackets + "~~~" + totalDataPackets + "\n");
@@ -826,13 +832,20 @@ public class defragmenterThread extends Thread {
 		if (frame[startup.PACKET_ERROR_BYTE] == 1) {
 			totalCorruptFrames++;
 		}
+		else {
+			totalCorrectFrames++;
+		}
 		totalFrames++;
 		
 		float fer = (float) totalCorruptFrames / totalFrames;
+		float goodput = (float) totalCorrectFrames / totalFrames;
 		Timestamp ts = new Timestamp((new Date()).getTime());
 		try {
 			ferStats.write(ts + "~~~" + fer + "~~~" + totalCorruptFrames + "~~~" + totalFrames + "\n");
 			ferStats.flush();
+			
+			wirelessGpStats.write(ts + "~~~" + goodput + "~~~" + totalCorrectFrames + "~~~" + totalFrames + "\n");
+			wirelessGpStats.flush();
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
