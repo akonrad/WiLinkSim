@@ -289,11 +289,7 @@ public class defragmenterThread extends Thread {
 		int currentPacketCounter;
 		int redundantPacketCount = 0;
 
-
 		//System.out.println("in checkFEC. wirelessFEC state is " + wirelessFEC);
-		
-		System.out.println("inside checkFEC, buff size is: " + buff.size());
-
 
 		for (int i = 0; i < buff.size(); i ++)
 		{
@@ -346,12 +342,8 @@ public class defragmenterThread extends Thread {
 		    }
 			 */
 			
-			System.out.println("redundant count doesn't match m value!");
-			
 			return buff;
 		}
-
-		System.out.println("about to scan packets...");
 
 		// Scan to see if the packets are to be sent as is, or if they can be retrieved because FEC (m + n count) is sufficient
 		for (int i = 0; i < buff.size(); i ++)
