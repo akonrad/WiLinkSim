@@ -390,6 +390,10 @@ public class fragmenterThread extends Thread {
 					startup.fragmented_buffer.add(FECpacket);
 					startup.RLE_wake.notifyAll();
 				}
+				
+				SimonTest.log(SimonTest.fragmenterFlag, "Adding an FEC packet:");
+				SimonTest.log(SimonTest.fragmenterFlag, SimonTest.packetToString(FECpacket, headerSize));
+				
 			}
 			FECid += 1;
 			if (FECid > 127)

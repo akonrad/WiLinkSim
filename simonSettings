@@ -4,8 +4,10 @@
 <Wireless_Model> TRUE </Wireless_Model>
 <Wireless_Mode> ERROR </Wireless_Mode>
 <Wireless_Feedback> TRUE </Wireless_Feedback>
-<Wireless_Feedback> FALSE </Wireless_Feedback>
-<WirelessErrorModel> HMM </WirelessErrorModel>
+<WIRELESS_FEC> TRUE </WIRELESS_FEC>
+<WIRELESS_FEC_MVALUE> 3 </WIRELESS_FEC_MVALUE>
+<WIRELESS_FEC_NVALUE> 1 </WIRELESS_FEC_NVALUE>
+<WirelessErrorModel> M3 </WirelessErrorModel>
 <ChangeOfState> 80 </ChangeOfState>
 <FER> 0.09909188312026047 </FER>
 <LossyMatrix>

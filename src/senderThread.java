@@ -281,6 +281,8 @@ public class senderThread extends Thread {
 			FECpacket = messUpPacket(FECpacket);
 			if (FECpacket != null)
 			    startup.packet_buffer.add(FECpacket);
+				SimonTest.log(SimonTest.senderFlag, "Adding FEC packet:");
+				SimonTest.log(SimonTest.senderFlag, SimonTest.packetToString(FECpacket, HEADER_SIZE));
 		    }
 	    fecID += 1;
 	    if (fecID >= 127)

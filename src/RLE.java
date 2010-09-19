@@ -115,8 +115,6 @@ public class RLE extends Thread {
 						
 						startup.RLE_wake.wait();
 					}
-					
-					System.out.println("RLE: woke up!");
 
 					radioPackets = (LinkedList) startup.fragmented_buffer.clone();
 					startup.fragmented_buffer.clear();

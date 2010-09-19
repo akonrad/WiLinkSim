@@ -19,7 +19,7 @@ public class defragmenterThread extends Thread {
 	int totalPackets, totalDataPackets, totalCorruptDataPackets, totalCorrectDataPackets;
 	int lastPacket, total_bytes;
 	int totalWirelessPackets, totalCorrectedWirelessPackets, totalCorruptWirelessPackets;
-	int totalFrames, totalCorruptFrames, totalCorrectFrames;
+	int totalFrames, totalCorruptFrames, totalCorrectFrames, totalRedundantFrames;
 	Timestamp timestamp;
 	boolean wirelessFEC, ipFEC;
 	m3Generator feedbackGenerator;
@@ -34,7 +34,7 @@ public class defragmenterThread extends Thread {
 	byte[] earlyPacket;
 	// counter representing where in the target packet the next byte will go
 	int targetCounter = 0;
-	BufferedWriter outputBuff, perStats, ipGpStats, ferStats, wirelessGpStats, fecStats, fecStats2;
+	BufferedWriter outputBuff, perStats, ipGpStats, ferStats, wirelessGpStats, fecWirelessGpStats, fecStats, fecStats2;
 	byte[] currentRadioPacket;
 	int oldPacketCounter, prevFeedbackState, totalbytes;
 	FileWriter receiver_IP_file, receiver_wireless_file;
@@ -88,6 +88,7 @@ public class defragmenterThread extends Thread {
 			totalFrames = 0;
 			totalCorruptFrames = 0;
 			totalCorrectFrames = 0;
+			totalRedundantFrames = 0;
 			totalWirelessPackets = 1;
 			totalCorrectedWirelessPackets = 1;
 			lastPacket = 1;
@@ -126,6 +127,13 @@ public class defragmenterThread extends Thread {
 			wirelessGpStats.write("# Wireless-Level Goodput Statistics\n");
 			wirelessGpStats.write("# format: [timestamp]~~~[goodput]~~~[total correct frames]~~~[total frames]\n\n");
 			wirelessGpStats.flush();
+			
+			if(wirelessFEC) {
+				fecWirelessGpStats = new BufferedWriter(new FileWriter("E2E_FEC_WIRELESS_GP_STATISTICS"));
+				fecWirelessGpStats.write("# FEC Wireles-Level Goodput Statistics\n");
+				fecWirelessGpStats.write("# format: [timestamp]~~~[goodput]~~~[total correct frames]~~~[total redundant frames]~~~[total frames]\n\n");
+				fecWirelessGpStats.flush();
+			}
 			
 			fecStats = new BufferedWriter(new FileWriter("fecStats"));
 			fecStats2 = new BufferedWriter(new FileWriter("fecStats2"));
@@ -283,6 +291,8 @@ public class defragmenterThread extends Thread {
 
 
 		//System.out.println("in checkFEC. wirelessFEC state is " + wirelessFEC);
+		
+		System.out.println("inside checkFEC, buff size is: " + buff.size());
 
 
 		for (int i = 0; i < buff.size(); i ++)
@@ -315,8 +325,10 @@ public class defragmenterThread extends Thread {
 		for (int i = 0; i < buff.size(); i ++)
 		{
 			tempArray = (byte[]) buff.get(i);
-			if (tempArray[startup.FEC_REDUNDANCY_PACKET] == 1)
+			if (tempArray[startup.FEC_REDUNDANCY_PACKET] == 1) {
 				redundantPacketCount += 1;
+				totalRedundantFrames++;
+			}
 			// Check to see total number of erroneous packets
 			if (tempArray[startup.PACKET_ERROR_BYTE] == 0)
 				uncorruptedPacketCounter += 1;
@@ -333,10 +345,13 @@ public class defragmenterThread extends Thread {
 			System.out.println(tempArray[startup.FEC_REDUNDANCY_PACKET] + "(" + tempArray[startup.FEC_ID_BYTE] + ")" + ": Error =" + tempArray[startup.PACKET_ERROR_BYTE]);
 		    }
 			 */
+			
+			System.out.println("redundant count doesn't match m value!");
+			
 			return buff;
 		}
 
-
+		System.out.println("about to scan packets...");
 
 		// Scan to see if the packets are to be sent as is, or if they can be retrieved because FEC (m + n count) is sufficient
 		for (int i = 0; i < buff.size(); i ++)
@@ -785,6 +800,7 @@ public class defragmenterThread extends Thread {
 				//perStats.write("\t" + timestamp + "\t\t" + per + "\t" + totalCorruptDataPackets + "\t" + totalDataPackets + "\n");
 				//perStats.flush();
 			}
+			
 			float goodput = (float) totalCorrectDataPackets / totalDataPackets;
 			ipGpStats.write(timestamp + "~~~" + goodput + "~~~" + totalCorrectDataPackets + "~~~" + totalDataPackets + "\n");
 			ipGpStats.flush();
@@ -792,7 +808,6 @@ public class defragmenterThread extends Thread {
 			float per = (float) totalCorruptDataPackets / totalDataPackets;
 			perStats.write(timestamp + "~~~" + per + "~~~" + totalCorruptDataPackets + "~~~" + totalDataPackets + "\n");
 			perStats.flush();
-
 
 			//ak
 			float corrected = (float)totalCorrectedWirelessPackets/totalWirelessPackets;
@@ -849,6 +864,17 @@ public class defragmenterThread extends Thread {
 		} 
 		catch (IOException e) {
 			e.printStackTrace();
+		}
+		if(wirelessFEC) {
+			int fecTotalFrames = totalFrames + totalRedundantFrames;
+			float fecGoodput = (float) totalCorrectFrames / fecTotalFrames;
+			try {
+				fecWirelessGpStats.write(ts + "~~~" + fecGoodput + "~~~" + totalCorrectFrames + "~~~" + totalRedundantFrames + "~~~" + fecTotalFrames + "\n");
+				fecWirelessGpStats.flush();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

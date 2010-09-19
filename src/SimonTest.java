@@ -92,7 +92,7 @@ public class SimonTest {
             case '\n': return returnMe + "\\n";
             case '\r': return returnMe + "\\r";
             case '\b': return returnMe + "\\b";
-            case 0x7f: return returnMe +"\\?";
+            case 0x7f: return returnMe + "\\?";
             default:   return returnMe + (char) b + '@';
         }
     }
