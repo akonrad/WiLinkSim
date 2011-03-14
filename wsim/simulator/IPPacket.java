@@ -1,87 +1,123 @@
 package simulator;
 
+/**
+ * The IPPacket class creates an IPv4 packet, which consists of a header and data section
+ * 
+ * @author	Kat Villariba
+ * @version	1.0 2011-MAR-13
+ */
 public class IPPacket {
 	
-	// IP header field constants
+	// IP version constants
 	
 	public static int		IPV4			= 0;
-	public static int		UDP				= 11;
-	public static int		TCP				= 06;
-
+	
 	// IP flag constants
 	
 	public static int		RESERVED		= 0;
 	public static int		DONT_FRAGMENT	= 1;
 	public static int		MORE_FRAGMENTS	= 2;
 	
+	// IP protocol constants
+	
+	public static int		TCP				= 06;
+	public static int		UDP				= 17;
+
 	// IP header fields
 	
-	private Integer 	version;			// IPv4
-	private Integer 	headerLength;
-	private Integer 	dscp;				// Differentiated Services Code Point
-	private Integer 	ecn;				// Explicit Congestion Notification 
-	private Integer 	totalLength;		// Length of header and data
-	private Integer 	identification;		// Identifies fragments of original IP datagram
-	private Integer 	flags;				// Identifies fragments
-	private Integer 	fragmentOffset;		// Offset of fragment relative to beginning of original IP datagram
-	private Integer 	ttl;				// Time to live
-	private Integer 	protocol;			// Defines protocol used in the data portion of IP datagram
-	private Integer 	headerChecksum;		// Used for error-checking the header
-	private Integer 	sourceAddress;
-	private Integer 	destinationAddress;
+	private int		version;			// IPv4
+	private int		headerLength;
+	private int		dscp;				// Differentiated Services Code Point
+	private int		ecn;				// Explicit Congestion Notification 
+	private int		totalLength;		// Length of header and data
+	private int		identification;		// Identifies fragments of original IP datagram
+	private int		flags;				// Identifies fragments
+	private int		fragmentOffset;		// Offset of fragment relative to beginning of original IP datagram
+	private int		ttl;				// Time to live
+	private int		protocol;			// Defines protocol used in the data portion of IP datagram
+	private int		headerChecksum;		// Used for error-checking the header
+	private int		sourceAddress;
+	private int		destinationAddress;
 
 	// IP data
 
-	private byte[] 		data;
+	private byte[] 	data;
 	
 	// Constructor
 	
-	public IPPacket(byte[] myData) {
+	public IPPacket(int i_identification,byte[] i_Data) {
 		version				= IPV4;
 		headerLength		= 20;
 		dscp				= 0;
 		ecn					= 0;
-		totalLength			= myData.length + headerLength;
-		identification		= 0;
+		totalLength			= i_Data.length + headerLength;
+		identification		= i_identification;
 		flags				= DONT_FRAGMENT;
 		fragmentOffset		= 0;
 		ttl					= 0;
 		protocol			= UDP;
-		sourceAddress		= 0;
-		destinationAddress	= 0;
+		headerChecksum		= 0;			// TODO: Compute header checksum
+		sourceAddress		= 0;			// TODO: Enter valid source address
+		destinationAddress	= 1;			// TODO: Enter valid destination address
+		data				= i_Data;
 	}
 	
-	// Methods
+	// Getter Methods
 
-	public byte[] getHeader() {
-		byte[] header = new byte[headerLength];
-		
-		header[0]  = version.byteValue();
-		header[1]  = headerLength.byteValue();
-		header[2]  = dscp.byteValue();
-		header[3]  = ecn.byteValue();
-		header[4]  = totalLength.byteValue();
-		header[5]  = identification.byteValue();
-		header[6]  = flags.byteValue();
-		header[7]  = fragmentOffset.byteValue();
-		header[8]  = ttl.byteValue();
-		header[9]  = protocol.byteValue();
-		header[10] = sourceAddress.byteValue();
-		header[11] = destinationAddress.byteValue();
-		
-		return header;
-	}
-	
 	public byte[] getData() {
 		return data;
-	}
-	
-	public int getHeaderLength() {
-		return headerLength;
 	}
 	
 	public int getDataLength() {
 		return totalLength - headerLength;
 	}
+	
+	public int getVersion() {
+		return version;
+	}
+	
+	public int getHeaderLength() {
+		return headerLength;
+	}
 
+	public int getDSCP() {
+		return dscp;
+	}
+
+	public int getECN() {
+		return ecn;
+	}
+
+	public int getIdentification() {
+		return identification;
+	}
+
+	public int getFlags() {
+		return flags;
+	}
+
+	public int getFragmentOffset() {
+		return fragmentOffset;
+	}
+
+	public int getTTL() {
+		return ttl;
+	}
+
+	public int getProtocol() {
+		return protocol;
+	}
+
+	public int getHeaderChecksum() {
+		return headerChecksum;
+	}
+
+	public int getSourceAddress() {
+		return sourceAddress;
+	}
+
+	public int getDestinationAddress() {
+		return destinationAddress;
+	}
+	
 }
