@@ -1,15 +1,15 @@
 package simulator;
 
 /**
- * The FragmenterThread class takes packets from the IP packet buffer, breaks up the packets into
- * radio frames and puts the radio frames into the radio packet buffer.
+ * The FragmenterThread class takes IP packets from the packet buffer, breaks up the packets into
+ * radio frames and puts the radio packets into the fragmented buffer.
  * 
  * @author 	Kat Villariba
  * @version 1.0 2011-MAR-13
  */
 public class FragmenterThread extends Thread {
 
-	private Buffer<IPPacket> packetBuffer;
+	private Buffer<IPPacket>	packetBuffer;
 	
 	// Constructor
 	

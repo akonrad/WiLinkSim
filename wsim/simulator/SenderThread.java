@@ -26,7 +26,7 @@ public class SenderThread extends Thread {
 	// Methods
 	
 	/**
-	 * Packetizes input file and puts packets into packet buffer
+	 * Packetizes the input file and puts the IP packets into the packet buffer
 	 */
 	public void run() {
 		int				numBytesRead	= 0;
